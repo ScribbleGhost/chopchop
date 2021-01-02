@@ -6,19 +6,16 @@ local cut_pos = nil
 local copy_audio = true
 local o = {
     target_dir = "~",
-    vcodec = "rawvideo",
-    acodec = "pcm_s16le",
+    vcodec = "copy",
+    acodec = "copy",
     prevf = "",
-    vf = "format=yuv444p16$hqvf,scale=in_color_matrix=$matrix,format=bgr24",
+    -- vf = "",
     hqvf = "",
     postvf = "",
     opts = "",
-    ext = "avi",
+    ext = "mkv",
     command_template = [[
-        ffmpeg -v warning -y -stats
-        -ss $shift -i "$in" -t $duration
-        -c:v $vcodec -c:a $acodec $audio
-        -vf $prevf$vf$postvf $opts "$out.$ext"
+        ffmpeg -hwaccel auto -ss $shift -i "$in" -t $duration -c:v $vcodec -c:a $acodec $audio -map 0 -sn $opts "$out.$ext"
     ]],
 }
 options.read_options(o)
@@ -27,7 +24,7 @@ function timestamp(duration)
     local hours = duration / 3600
     local minutes = duration % 3600 / 60
     local seconds = duration % 60
-    return string.format("%02d:%02d:%02.03f", hours, minutes, seconds)
+    return string.format("%02d-%02d-%02.03f", hours, minutes, seconds)
 end
 
 function osd(str)
@@ -43,11 +40,9 @@ end
 function log(str)
     local logpath = utils.join_path(
         o.target_dir:gsub("~", get_homedir()),
-        "mpv_slicing.log")
+        "mpv_chopchop.log")
     f = io.open(logpath, "a")
-    f:write(string.format("# %s\n%s\n",
-        os.date("%Y-%m-%d %H:%M:%S"),
-        str))
+    f:write(string.format("%s%s\n",os.date(""),str))
     f:close()
 end
 
@@ -62,25 +57,13 @@ function trim(str)
     return str:gsub("^%s+", ""):gsub("%s+$", "")
 end
 
-function get_csp()
-    local csp = mp.get_property("colormatrix")
-    if csp == "bt.601" then return "bt601"
-        elseif csp == "bt.709" then return "bt709"
-        elseif csp == "smpte-240m" then return "smpte240m"
-        else
-            local err = "Unknown colorspace: " .. csp
-            osd(err)
-            error(err)
-    end
-end
-
 function get_outname(shift, endpos)
     local name = mp.get_property("filename")
     local dotidx = name:reverse():find(".", 1, true)
     if dotidx then name = name:sub(1, -dotidx-1) end
     name = name:gsub(" ", "_")
     name = name:gsub(":", "-")
-    name = name .. string.format(".%s-%s", timestamp(shift), timestamp(endpos))
+    name = name .. string.format(" - %s-%s", timestamp(shift), timestamp(endpos))
     return name
 end
 
@@ -99,10 +82,9 @@ function cut(shift, endpos)
     cmd = cmd:gsub("$acodec", o.acodec)
     cmd = cmd:gsub("$audio", copy_audio and "" or "-an")
     cmd = cmd:gsub("$prevf", o.prevf)
-    cmd = cmd:gsub("$vf", o.vf)
+    -- cmd = cmd:gsub("$vf", o.vf)
     cmd = cmd:gsub("$hqvf", o.hqvf)
     cmd = cmd:gsub("$postvf", o.postvf)
-    cmd = cmd:gsub("$matrix", get_csp())
     cmd = cmd:gsub("$opts", o.opts)
     -- Beware that input/out filename may contain replacing patterns.
     cmd = cmd:gsub("$ext", o.ext)
