@@ -40,7 +40,7 @@ end
 function log(str)
     local logpath = utils.join_path(
         o.target_dir:gsub("~", get_homedir()),
-        "mpv_slicing.bat")
+        "mpv_chopchop.log")
     f = io.open(logpath, "a")
     f:write(string.format("%s%s\n",os.date(""),str))
     f:close()
