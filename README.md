@@ -21,9 +21,16 @@ The script runs [FFMpeg](https://ffmpeg.org/) to do the job for you. All you hav
 - Find a point in thime where you want to start the clip extraction.
 - Hit <kbd>c</kbd> to set the start point.
 - Find an end point and hit <kbd>c</kbd> again to to set the end of the clip.
-- FFMpeg should now start working for you. The clip will be saved in the specified directory.
+- FFMpeg should now start working for you. The clip will be saved in the user folder together with a log file.
 
 You can also exclude audio by hitting the <kbd>a</kbd> button once before you select the clip.
+
+## Limitations
+
+- Extracted videos does not include subtitles.
+  - Since I can't really wrap my head around how mapping works in FFMpeg yet, I haven't found a suitable way to include subtitles.
+- Exported clips can only be saved to the "home" directory. On Windows that is `C:\Users\your_username\`.
+  - Since I don't really care to learn Lua right now, I will leave it as it is. If you know a way to write a relative path to the desktop folder (that works for Win/Linux and MacOS) please give me a shout. I will gladly add it to the code.
 
 ___
 
