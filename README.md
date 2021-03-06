@@ -9,6 +9,8 @@ ChopChop is a a user script for [mpv](https://github.com/mpv-player/mpv) media p
 
 ## Installation
 
+- Make sure you have MPV
+- Make sure you have FFmpeg installed or added to PATH.
 - Put chopchop.lua file in the scripts folder for mvp:
   - GNU/Linux or macOS: `~/.config/mpv/scripts/`
   - Windows: `%appdata%/mpv/scripts/`
